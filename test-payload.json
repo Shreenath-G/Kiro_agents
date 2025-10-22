@@ -1,0 +1,5 @@
+{
+  "apiPath": "/campaigns",
+  "httpMethod": "GET",
+  "parameters": []
+}

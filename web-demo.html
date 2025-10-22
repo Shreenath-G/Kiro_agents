@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Advertisement Optimization Agent - Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .online { background: #4CAF50; }
+        .offline { background: #f44336; }
+        .warning { background: #ff9800; }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .resource-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: rgba(255, 255, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Advertisement Optimization Agent</h1>
+        
+        <div class="demo-section">
+            <h2>🎯 Project Status</h2>
+            <div class="status">
+                <div class="status-icon online"></div>
+                <strong>Deployed & Running</strong> - AWS us-east-1
+            </div>
+            <div class="status">
+                <div class="status-icon online"></div>
+                <strong>Lambda Functions</strong> - 5/5 Active
+            </div>
+            <div class="status">
+                <div class="status-icon warning"></div>
+                <strong>Bedrock Agent</strong> - Nova Pro (Capacity Issues)
+            </div>
+            <div class="status">
+                <div class="status-icon online"></div>
+                <strong>Infrastructure</strong> - All Resources Healthy
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🌐 Access Points</h2>
+            
+            <h3>AWS Console Links</h3>
+            <a href="https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/agents/KTCOGQHMBD" 
+               class="btn" target="_blank">
+                🤖 View Bedrock Agent
+            </a>
+            
+            <a href="https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks" 
+               class="btn" target="_blank">
+                🏗️ View CloudFormation Stack
+            </a>
+            
+            <a href="https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions" 
+               class="btn" target="_blank">
+                ⚡ View Lambda Functions
+            </a>
+            
+            <a href="https://us-east-1.console.aws.amazon.com/dynamodbv2/home?region=us-east-1#/tables" 
+               class="btn" target="_blank">
+                🗄️ View DynamoDB Tables
+            </a>
+        </div>
+
+        <div class="demo-section">
+            <h2>🚀 Live Demo Commands</h2>
+            <p>Run these commands locally to interact with the deployed agent:</p>
+            
+            <div class="code">
+                # Interactive chat with the AI agent<br>
+                <span class="highlight">python interactive-demo.py</span>
+            </div>
+            
+            <div class="code">
+                # Run automated test scenarios<br>
+                <span class="highlight">python test-agent.py</span>
+            </div>
+            
+            <div class="code">
+                # Test Lambda functions directly<br>
+                <span class="highlight">python test-lambda-direct.py</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🏗️ Deployed Resources</h2>
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <h3>🤖 Bedrock Agent</h3>
+                    <p><strong>ID:</strong> KTCOGQHMBD</p>
+                    <p><strong>Model:</strong> Nova Pro</p>
+                    <p><strong>Status:</strong> Active</p>
+                </div>
+                
+                <div class="resource-card">
+                    <h3>⚡ Lambda Functions</h3>
+                    <p>• Google Ads Management</p>
+                    <p>• Meta Ads Management</p>
+                    <p>• Analytics Engine</p>
+                    <p>• Budget Optimizer</p>
+                    <p>• Storage Manager</p>
+                </div>
+                
+                <div class="resource-card">
+                    <h3>🗄️ Data Storage</h3>
+                    <p><strong>DynamoDB:</strong> ad-optimizer-metrics</p>
+                    <p><strong>S3 Bucket:</strong> ad-optimizer-data-*</p>
+                    <p><strong>Secrets:</strong> API keys secured</p>
+                </div>
+                
+                <div class="resource-card">
+                    <h3>🔐 Security</h3>
+                    <p><strong>IAM Roles:</strong> Configured</p>
+                    <p><strong>Permissions:</strong> Least privilege</p>
+                    <p><strong>Encryption:</strong> At rest & transit</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>💡 Demo Scenarios</h2>
+            <p>Try these prompts with the agent:</p>
+            
+            <div class="code">
+                "Get my Google Ads campaigns and show their performance"
+            </div>
+            
+            <div class="code">
+                "Optimize my budget allocation across all campaigns"
+            </div>
+            
+            <div class="code">
+                "Analyze which campaigns are underperforming and suggest improvements"
+            </div>
+            
+            <div class="code">
+                "Compare Google Ads vs Meta Ads performance this month"
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📊 Architecture Overview</h2>
+            <p>This AI agent system uses:</p>
+            <ul>
+                <li><strong>Amazon Bedrock</strong> - AI reasoning and orchestration</li>
+                <li><strong>AWS Lambda</strong> - Serverless compute for ad platform integrations</li>
+                <li><strong>Amazon DynamoDB</strong> - Real-time metrics storage</li>
+                <li><strong>Amazon S3</strong> - Campaign data and insights storage</li>
+                <li><strong>AWS Secrets Manager</strong> - Secure API key management</li>
+                <li><strong>AWS IAM</strong> - Security and access control</li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎯 Competition Highlights</h2>
+            <ul>
+                <li>✅ <strong>LLM on AWS:</strong> Amazon Bedrock Nova Pro</li>
+                <li>✅ <strong>Multiple AWS Services:</strong> 8 services integrated</li>
+                <li>✅ <strong>Autonomous Agent:</strong> Multi-step reasoning and tool orchestration</li>
+                <li>✅ <strong>Production Ready:</strong> Complete infrastructure as code</li>
+                <li>✅ <strong>Real Business Value:</strong> Solves actual small business problem</li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <h2>📞 Contact & Support</h2>
+            <p><strong>Project:</strong> AI Advertisement Optimization Agent</p>
+            <p><strong>AWS Account:</strong> 793323451177</p>
+            <p><strong>Region:</strong> us-east-1</p>
+            <p><strong>Stack:</strong> AdOptimizerAgentStack</p>
+            <p><strong>Status:</strong> Deployed and Ready for Demo</p>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate status indicators
+            const statusIcons = document.querySelectorAll('.status-icon');
+            statusIcons.forEach(icon => {
+                if (icon.classList.contains('online')) {
+                    setInterval(() => {
+                        icon.style.opacity = icon.style.opacity === '0.5' ? '1' : '0.5';
+                    }, 1000);
+                }
+            });
+            
+            // Add click handlers for demo commands
+            const codeBlocks = document.querySelectorAll('.code');
+            codeBlocks.forEach(block => {
+                block.addEventListener('click', function() {
+                    // Copy to clipboard
+                    const text = this.textContent.trim();
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.style.background = 'rgba(76, 175, 80, 0.3)';
+                        setTimeout(() => {
+                            this.style.background = 'rgba(0, 0, 0, 0.3)';
+                        }, 1000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
