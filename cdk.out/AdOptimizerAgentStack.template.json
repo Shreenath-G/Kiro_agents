@@ -1,0 +1,1382 @@
+{
+ "Description": "AI Advertisement Optimization Agent for Small Businesses",
+ "Resources": {
+  "CampaignDataBucket2FED4F6D": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": "ad-optimizer-data-793323451177",
+    "LifecycleConfiguration": {
+     "Rules": [
+      {
+       "ExpirationInDays": 90,
+       "Status": "Enabled",
+       "Transitions": [
+        {
+         "StorageClass": "STANDARD_IA",
+         "TransitionInDays": 30
+        }
+       ]
+      }
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/CampaignDataBucket/Resource"
+   }
+  },
+  "CampaignDataBucketPolicy988A6C6E": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "CampaignDataBucket2FED4F6D"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:PutBucketPolicy",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignDataBucket2FED4F6D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CampaignDataBucket2FED4F6D",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/CampaignDataBucket/Policy/Resource"
+   }
+  },
+  "CampaignDataBucketAutoDeleteObjectsCustomResource8E7B7521": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "CampaignDataBucket2FED4F6D"
+    }
+   },
+   "DependsOn": [
+    "CampaignDataBucketPolicy988A6C6E"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/CampaignDataBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-793323451177-us-east-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "CampaignDataBucket2FED4F6D"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "CampaignMetricsTableC64D7CDE": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "campaignId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "timestamp",
+      "AttributeType": "N"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "campaignId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "timestamp",
+      "KeyType": "RANGE"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "TableName": "ad-optimizer-metrics",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/CampaignMetricsTable/Resource"
+   }
+  },
+  "AdPlatformAPIKeysC6796CCD": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "API keys for Google Ads and Meta Ads",
+    "GenerateSecretString": {
+     "GenerateStringKey": "placeholder",
+     "SecretStringTemplate": "{\"googleAdsClientId\":\"REPLACE_WITH_YOUR_CLIENT_ID\",\"googleAdsClientSecret\":\"REPLACE_WITH_YOUR_CLIENT_SECRET\",\"googleAdsRefreshToken\":\"REPLACE_WITH_YOUR_REFRESH_TOKEN\",\"googleAdsDeveloperToken\":\"REPLACE_WITH_YOUR_DEVELOPER_TOKEN\",\"metaAccessToken\":\"REPLACE_WITH_YOUR_META_ACCESS_TOKEN\",\"metaAdAccountId\":\"REPLACE_WITH_YOUR_AD_ACCOUNT_ID\"}"
+    },
+    "Name": "ad-optimizer/api-keys"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/AdPlatformAPIKeys/Resource"
+   }
+  },
+  "GoogleAdsFunctionServiceRole11F2CADB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/GoogleAdsFunction/ServiceRole/Resource"
+   }
+  },
+  "GoogleAdsFunctionServiceRoleDefaultPolicyBF6A9785": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignDataBucket2FED4F6D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CampaignDataBucket2FED4F6D",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignMetricsTableC64D7CDE",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AdPlatformAPIKeysC6796CCD"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "GoogleAdsFunctionServiceRoleDefaultPolicyBF6A9785",
+    "Roles": [
+     {
+      "Ref": "GoogleAdsFunctionServiceRole11F2CADB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/GoogleAdsFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "GoogleAdsFunctionA96CDAD3": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-793323451177-us-east-1",
+     "S3Key": "f0370338278a371532ca2f3434067cbbe76e89865ea809774effb08df2d25d22.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "BUCKET_NAME": {
+       "Ref": "CampaignDataBucket2FED4F6D"
+      },
+      "METRICS_TABLE": {
+       "Ref": "CampaignMetricsTableC64D7CDE"
+      },
+      "SECRETS_ARN": {
+       "Ref": "AdPlatformAPIKeysC6796CCD"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "GoogleAdsFunctionServiceRole11F2CADB",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "GoogleAdsFunctionServiceRoleDefaultPolicyBF6A9785",
+    "GoogleAdsFunctionServiceRole11F2CADB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/GoogleAdsFunction/Resource",
+    "aws:asset:path": "asset.f0370338278a371532ca2f3434067cbbe76e89865ea809774effb08df2d25d22",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "MetaAdsFunctionServiceRole148403D9": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/MetaAdsFunction/ServiceRole/Resource"
+   }
+  },
+  "MetaAdsFunctionServiceRoleDefaultPolicy8DA36093": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignDataBucket2FED4F6D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CampaignDataBucket2FED4F6D",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignMetricsTableC64D7CDE",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AdPlatformAPIKeysC6796CCD"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MetaAdsFunctionServiceRoleDefaultPolicy8DA36093",
+    "Roles": [
+     {
+      "Ref": "MetaAdsFunctionServiceRole148403D9"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/MetaAdsFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "MetaAdsFunction54F22D99": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-793323451177-us-east-1",
+     "S3Key": "9ea8d9aa9ba629ffdd639dbd543a1baa6ec7892f7f7ca0e3b04ab173576da0e4.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "BUCKET_NAME": {
+       "Ref": "CampaignDataBucket2FED4F6D"
+      },
+      "METRICS_TABLE": {
+       "Ref": "CampaignMetricsTableC64D7CDE"
+      },
+      "SECRETS_ARN": {
+       "Ref": "AdPlatformAPIKeysC6796CCD"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "MetaAdsFunctionServiceRole148403D9",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "MetaAdsFunctionServiceRoleDefaultPolicy8DA36093",
+    "MetaAdsFunctionServiceRole148403D9"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/MetaAdsFunction/Resource",
+    "aws:asset:path": "asset.9ea8d9aa9ba629ffdd639dbd543a1baa6ec7892f7f7ca0e3b04ab173576da0e4",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "AnalyticsFunctionServiceRole4C6FF659": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/AnalyticsFunction/ServiceRole/Resource"
+   }
+  },
+  "AnalyticsFunctionServiceRoleDefaultPolicy0F4B1A8C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignDataBucket2FED4F6D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CampaignDataBucket2FED4F6D",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignMetricsTableC64D7CDE",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AnalyticsFunctionServiceRoleDefaultPolicy0F4B1A8C",
+    "Roles": [
+     {
+      "Ref": "AnalyticsFunctionServiceRole4C6FF659"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/AnalyticsFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "AnalyticsFunctionFF8C31E8": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-793323451177-us-east-1",
+     "S3Key": "0a4a85c9daa2a36909b9d8b816f7346e6af621bac317460b66305f93ce191393.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "BUCKET_NAME": {
+       "Ref": "CampaignDataBucket2FED4F6D"
+      },
+      "METRICS_TABLE": {
+       "Ref": "CampaignMetricsTableC64D7CDE"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 1024,
+    "Role": {
+     "Fn::GetAtt": [
+      "AnalyticsFunctionServiceRole4C6FF659",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 90
+   },
+   "DependsOn": [
+    "AnalyticsFunctionServiceRoleDefaultPolicy0F4B1A8C",
+    "AnalyticsFunctionServiceRole4C6FF659"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/AnalyticsFunction/Resource",
+    "aws:asset:path": "asset.0a4a85c9daa2a36909b9d8b816f7346e6af621bac317460b66305f93ce191393",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BudgetOptimizerFunctionServiceRole76BFAA9E": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/BudgetOptimizerFunction/ServiceRole/Resource"
+   }
+  },
+  "BudgetOptimizerFunctionServiceRoleDefaultPolicy46985B4B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignDataBucket2FED4F6D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CampaignDataBucket2FED4F6D",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignMetricsTableC64D7CDE",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BudgetOptimizerFunctionServiceRoleDefaultPolicy46985B4B",
+    "Roles": [
+     {
+      "Ref": "BudgetOptimizerFunctionServiceRole76BFAA9E"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/BudgetOptimizerFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "BudgetOptimizerFunction4A1C8FF7": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-793323451177-us-east-1",
+     "S3Key": "56011a5bf36b6f85a00462f349820a8ac037c3ebf14348a8c46131aa2662c886.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "BUCKET_NAME": {
+       "Ref": "CampaignDataBucket2FED4F6D"
+      },
+      "METRICS_TABLE": {
+       "Ref": "CampaignMetricsTableC64D7CDE"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "BudgetOptimizerFunctionServiceRole76BFAA9E",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "BudgetOptimizerFunctionServiceRoleDefaultPolicy46985B4B",
+    "BudgetOptimizerFunctionServiceRole76BFAA9E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/BudgetOptimizerFunction/Resource",
+    "aws:asset:path": "asset.56011a5bf36b6f85a00462f349820a8ac037c3ebf14348a8c46131aa2662c886",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "StorageFunctionServiceRole697D58EA": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/StorageFunction/ServiceRole/Resource"
+   }
+  },
+  "StorageFunctionServiceRoleDefaultPolicy54CAC808": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignDataBucket2FED4F6D",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CampaignDataBucket2FED4F6D",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CampaignMetricsTableC64D7CDE",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "StorageFunctionServiceRoleDefaultPolicy54CAC808",
+    "Roles": [
+     {
+      "Ref": "StorageFunctionServiceRole697D58EA"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/StorageFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "StorageFunction2187EE63": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-793323451177-us-east-1",
+     "S3Key": "25aaec29de8fa255098dec0a1d8fd5760dad0c19bbf291f26a5b22fb3d8e88c8.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "BUCKET_NAME": {
+       "Ref": "CampaignDataBucket2FED4F6D"
+      },
+      "METRICS_TABLE": {
+       "Ref": "CampaignMetricsTableC64D7CDE"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "StorageFunctionServiceRole697D58EA",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "StorageFunctionServiceRoleDefaultPolicy54CAC808",
+    "StorageFunctionServiceRole697D58EA"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/StorageFunction/Resource",
+    "aws:asset:path": "asset.25aaec29de8fa255098dec0a1d8fd5760dad0c19bbf291f26a5b22fb3d8e88c8",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BedrockAgentRole7C982E0C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "bedrock.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonBedrockFullAccess"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/BedrockAgentRole/Resource"
+   }
+  },
+  "BedrockAgentRoleDefaultPolicy1462CD5B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "GoogleAdsFunctionA96CDAD3",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "GoogleAdsFunctionA96CDAD3",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MetaAdsFunction54F22D99",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MetaAdsFunction54F22D99",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "AnalyticsFunctionFF8C31E8",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "AnalyticsFunctionFF8C31E8",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "BudgetOptimizerFunction4A1C8FF7",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "BudgetOptimizerFunction4A1C8FF7",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StorageFunction2187EE63",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "StorageFunction2187EE63",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BedrockAgentRoleDefaultPolicy1462CD5B",
+    "Roles": [
+     {
+      "Ref": "BedrockAgentRole7C982E0C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/BedrockAgentRole/DefaultPolicy/Resource"
+   }
+  },
+  "AdOptimizerAgent": {
+   "Type": "AWS::Bedrock::Agent",
+   "Properties": {
+    "AgentName": "ad-optimizer-agent",
+    "AgentResourceRoleArn": {
+     "Fn::GetAtt": [
+      "BedrockAgentRole7C982E0C",
+      "Arn"
+     ]
+    },
+    "Description": "AI Advertisement Optimization Agent for Small Businesses",
+    "FoundationModel": "amazon.nova-pro-v1:0",
+    "IdleSessionTTLInSeconds": 1800,
+    "Instruction": "You are an expert digital advertising optimization agent for small businesses.\nYour role is to autonomously optimize Google Ads and Meta Ads campaigns to maximize ROI.\n\nYou have access to five tools:\n1. google_ads: Manage Google Ads campaigns (get metrics, adjust bids, update budgets, pause/activate ads)\n2. meta_ads: Manage Meta Ads campaigns (get metrics, adjust bids, update budgets, pause/activate ads)\n3. analytics: Analyze campaign performance, identify trends, and predict outcomes\n4. budget_optimizer: Optimize budget allocation across campaigns and platforms\n5. storage: Store insights, decisions, and performance history\n\nYour responsibilities:\n- Monitor campaign performance continuously\n- Identify underperforming ads and campaigns\n- Detect ad fatigue, market changes, and competitor actions\n- Automatically adjust bids, budgets, and targeting\n- Test ad creatives and scale winners\n- Reallocate budget to high-performing campaigns\n- Provide actionable insights and recommendations\n\nUse your reasoning capabilities to:\n- Understand business goals and constraints\n- Analyze multi-dimensional performance data\n- Make data-driven optimization decisions\n- Adapt to market volatility and platform changes\n- Balance short-term performance with long-term strategy\n- Explain your decisions clearly to business owners\n\nAlways prioritize ROI, cost-efficiency, and sustainable growth. Think strategically before taking action."
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/AdOptimizerAgent"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WPT2/CMAzFPwt343VF2h0q7TrU7o7cxFShbTLFCQhF+e5TGza20/s9/3mya6zrCqsN3WSr9LidTI+pC6RGoJuckuwwHaIaOUBztg8qcnSTUfdn+eGLOZBwBn23NDvdY/qkfuJldoUMwspzkJksDewxdatfBgplmGjuNWF6j1YF4+zS++EMhmZMrSuZqz7PKZRBdicS4SC4XwR61t6pEZuz3Q9sQ4YmSnBzy+KiVyXql/+1jt5djWa/vAVrWhdoMHaAv8sfMXzFkME6zXiRl2td4+sbVpuLGLP10QYzM7ZFvwFwpRHmegEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "AdOptimizerAgentStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "AgentId": {
+   "Description": "Bedrock Agent ID - Use this to add action groups in AWS Console",
+   "Value": {
+    "Fn::GetAtt": [
+     "AdOptimizerAgent",
+     "AgentId"
+    ]
+   }
+  },
+  "AgentArn": {
+   "Description": "Bedrock Agent ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "AdOptimizerAgent",
+     "AgentArn"
+    ]
+   }
+  },
+  "CampaignDataBucketName": {
+   "Description": "S3 Bucket for campaign data storage",
+   "Value": {
+    "Ref": "CampaignDataBucket2FED4F6D"
+   }
+  },
+  "MetricsTableName": {
+   "Description": "DynamoDB table for campaign metrics",
+   "Value": {
+    "Ref": "CampaignMetricsTableC64D7CDE"
+   }
+  },
+  "APIKeysSecretArn": {
+   "Description": "Secrets Manager ARN for API keys",
+   "Value": {
+    "Ref": "AdPlatformAPIKeysC6796CCD"
+   }
+  },
+  "GoogleAdsFunctionArn": {
+   "Description": "Google Ads Lambda Function ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "GoogleAdsFunctionA96CDAD3",
+     "Arn"
+    ]
+   }
+  },
+  "MetaAdsFunctionArn": {
+   "Description": "Meta Ads Lambda Function ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "MetaAdsFunction54F22D99",
+     "Arn"
+    ]
+   }
+  },
+  "AnalyticsFunctionArn": {
+   "Description": "Analytics Lambda Function ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "AnalyticsFunctionFF8C31E8",
+     "Arn"
+    ]
+   }
+  },
+  "BudgetOptimizerFunctionArn": {
+   "Description": "Budget Optimizer Lambda Function ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "BudgetOptimizerFunction4A1C8FF7",
+     "Arn"
+    ]
+   }
+  },
+  "StorageFunctionArn": {
+   "Description": "Storage Lambda Function ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "StorageFunction2187EE63",
+     "Arn"
+    ]
+   }
+  },
+  "NextSteps": {
+   "Description": "Manual steps required",
+   "Value": "After deployment, add action groups in AWS Console: https://console.aws.amazon.com/bedrock/home#/agents"
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
